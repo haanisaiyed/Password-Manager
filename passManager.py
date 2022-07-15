@@ -1,20 +1,22 @@
 # passmanager.py
 # By: Haani Saiyed
 
+from ctypes import alignment
 import tkinter
 from tkinter.constants import DISABLED, END
 from typing import Text
 import json
-from tkinter import filedialog
+from tkinter import CENTER, RIGHT, filedialog
 import string
 import random
+from tkinter import *
 
 
 class passManager:
     def __init__(self):
         self.main_window = tkinter.Tk()
         self.main_window.title("Password Manager")
-        self.main_window.geometry("600x515")
+        self.main_window.geometry("600x215")
 
         self.page_frame = tkinter.Frame(self.main_window)
 
@@ -30,17 +32,17 @@ class passManager:
         self.page_label = tkinter.Label(
             self.page_frame, text="Password Manager",  font=("Arial", 25))
         self.website_label = tkinter.Label(
-            self.website_frame, text="Website:     ", bg='#003366', fg="#FFFFFF")
+            self.website_frame, text="Website:     ")
         self.website_entry = tkinter.Entry(
             self.website_frame, width=50)
         self.website_entry.insert(0, "https://www.")
 
         self.username_label = tkinter.Label(
-            self.username_frame, text="Username:  ", bg='#003366', fg="#FFFFFF")
+            self.username_frame, text="Username:  ")
         self.username_entry = tkinter.Entry(self.username_frame, width=50)
 
         self.password_label = tkinter.Label(
-            self.password_frame, text="Password: ", bg='#003366', fg="#FFFFFF")
+            self.password_frame, text="Password: ")
         self.password_entry = tkinter.Entry(self.password_frame, width=35)
         self.passGen_button = tkinter.Button(
             self.password_frame, text="Generate Password", command=self.genPass)
@@ -51,9 +53,6 @@ class passManager:
 
         self.view_Button = tkinter.Button(
             self.view_frame, text="View All Passwords", command=self.viewAllPass)
-
-        self.data_label = tkinter.Text(
-            self.data_frame, bg='#003366', fg="#FFFFFF")
 
         self.page_label.pack(side="left")
         self.website_label.pack(side="left")
@@ -67,7 +66,7 @@ class passManager:
         self.add_Button.pack(side="top")
         self.message_label.pack(side="left")
         self.view_Button.pack(side="top")
-        self.data_label.pack(side="bottom")
+        # self.data_label.pack(side="bottom")
 
         self.page_frame.pack()
         self.website_frame.pack()
@@ -86,8 +85,8 @@ class passManager:
         password = str(self.password_entry.get())
         newSite = {
             website: {
-                'username ': username,
-                'password ': password
+                "username": username,
+                "password": password
             }
         }
         if(len(website) != 12 and len(password) != 0 and len(username) != 0):
@@ -111,16 +110,30 @@ class passManager:
             self.message_label.config(text="Password Not Added")
 
     def viewAllPass(self):
+        v = Scrollbar(self.data_frame, orient='vertical')
+        v.pack(side=RIGHT, fill=Y)
+        self.data_label = tkinter.Text(
+            self.data_frame, bg="#D3D3D3", width=50, yscrollcommand=v.set)
+        self.main_window.geometry("600x515")
+
+        v.config(command=self.data_label.yview)
+
+        self.data_label.pack(side="bottom")
         if self.data_label.compare("end-1c", "!=", "1.0"):
             self.data_label.delete(0, END)
 
         # INITIALDIR IS INITIAL DIRECTORY FOR MY COMPUTER
         # WILL BE DIFFERENT FOR EACH DEVICE SO I MOVED IT OUT OF THE PARENTHESIS
-        ## initialdir='/Users/Haani/Documents/Org. of Prog. Languages/project'
-        file = tkinter.filedialog.askopenfilename()
+        # initialdir = '/Users/Haani/Documents/GitHub/passwordData.txt'
+        file = tkinter.filedialog.askopenfilename(
+            filetypes=[("passwordData", ".txt")])
 
         f = open(file, 'r')
         for line in f:
+            line = line.replace("{", "")
+            line = line.replace("}", "")
+            line = line.replace('"', "")
+            line = line.replace(',', '')
             self.data_label.insert('end', line)
         self.data_label.config(state=DISABLED)
 
